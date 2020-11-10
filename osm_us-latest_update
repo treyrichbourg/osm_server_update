@@ -11,6 +11,13 @@ SOURCEDIR=~/data/new_data
 DESTDIR=~/data/old_data
 WGET="/usr/bin/wget -P $SOURCEDIR https://download.geofabrik.de/north-america/us-latest.osm.pbf"
 
+if [[ ! -d $SOURCEDIR ]]; then
+    mkdir -p $SOURCEDIR
+fi
+
+if [[ ! -d $DESTDIR ]]; then
+    mkdir -p $DESTDIR
+fi
 
 if [[ -f $SOURCEDIR/$DATA ]];  then
     echo "Backing up old raw data."
@@ -23,16 +30,16 @@ else
 fi
 
 echo "Stopping renderd service."
-/etc/init.d/renderd stop
+sudo /etc/init.d/renderd stop
 
 echo "Importing new data to gis database."
 osm2pgsql -d gis --create --slim  -G --hstore --tag-transform-script ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 2500 --number-processes 4 -S ~/src/openstreetmap-carto/openstreetmap-carto.style $SOURCEDIR/$DATA 
 
 echo "Starting renderd service."
-/etc/init.d/renderd start
+sudo /etc/init.d/renderd start
 
 echo "Creating timestamp file."
-touch /varlib/mod_tile/planet-import/complete
+touch /var/lib/mod_tile/planet-import-complete
 
 echo "Rendering new tiles."
 render_list -n 4 -s /var/run/renderd/renderd.sock -z 0 -Z 19 -m ajt  -a
