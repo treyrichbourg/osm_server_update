@@ -44,3 +44,4 @@ touch /var/lib/mod_tile/planet-import-complete
 echo "Rendering new tiles."
 render_list -n 4 -s /var/run/renderd/renderd.sock -z 0 -Z 19 -m ajt  -a
 
+echo "Update Complete"
